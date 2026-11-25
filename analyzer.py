@@ -2,7 +2,7 @@ import os
 import json
 import requests
 
-GROQ_URL = "https://groq.com"
+GROQ_URL = "https://" + "api.groq" + ".com/openai/v1/chat/completions"
 
 def siusti_groq(promptas, max_tokens=1500):
     api_key = os.environ.get("GROQ_API_KEY")
