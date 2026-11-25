@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="lt" style="overflow: hidden; margin: 0; padding: 0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV įkrovimo kainų valdiklis | EV kainos Lietuvoje</title>
+    <style>
+        html, body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            background: transparent; 
+            color: #ffffff; 
+            overflow: hidden !important;
+            width: 100%;
+            height: 100%;
+        }
+
+        .w-box { 
+            border: 1px solid #374151; 
+            border-radius: 12px; 
+            padding: 12px 14px; 
+            background: #1f2937; 
+            box-sizing: border-box;
+        }
+        .w-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.85rem; }
+        .w-logo { font-weight: 800; color: #ffffff; text-decoration: none; }
+        .w-logo span { color: #10b981; }
+        .w-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: #111827; border-radius: 8px; margin-bottom: 6px; font-size: 0.86rem; }
+        .w-price { font-family: monospace; font-size: 1.02rem; font-weight: 800; color: #10b981; }
+        .w-ac { color: #60a5fa; }
+        .w-foot { text-align: right; font-size: 0.72rem; color: #9ca3af; margin-top: 4px; }
+        .w-foot a { color: #6ee7b7; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="w-box">
+        <div class="w-top">
+            <a href="https://vercel.app" target="_blank" class="w-logo">EV kainos <span>Lietuvoje</span></a>
+            <span id="w-time" style="color:#9ca3af; font-size:0.75rem;">Kraunama...</span>
+        </div>
+        <div class="w-row">
+            <span>⚡ Pigiausias DC (<strong id="w-dc-net">—</strong>)</span>
+            <span class="w-price" id="w-dc-val">—</span>
+        </div>
+        <div class="w-row">
+            <span>🔌 Pigiausias AC (<strong id="w-ac-net">—</strong>)</span>
+            <span class="w-price w-ac" id="w-ac-val">—</span>
+        </div>
+        <div class="w-foot">
+            Visos 1500+ EV stotelių kainos → <a href="https://vercel.app" target="_blank">EV kainos Lietuvoje ↗</a>
+        </div>
+    </div>
+
+    <script>
+        fetch('ev_prices.json?v=' + new Date().getTime())
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('w-time').textContent = data.last_updated;
+                const dcNets = data.networks
+                    .filter(n => typeof n.best_dc === 'number' && n.best_dc > 0)
+                    .sort((a, b) => a.best_dc - b.best_dc);
+                const acNets = data.networks
+                    .filter(n => typeof n.best_ac === 'number' && n.best_ac > 0)
+                    .sort((a, b) => a.best_ac - b.best_ac);
+
+                if (dcNets.length) {
+                    document.getElementById('w-dc-net').textContent = dcNets[0].name;
+                    document.getElementById('w-dc-val').textContent = dcNets[0].best_dc.toFixed(2) + ' €/kWh';
+                }
+                if (acNets.length) {
+                    document.getElementById('w-ac-net').textContent = acNets[0].name;
+                    document.getElementById('w-ac-val').textContent = acNets[0].best_ac.toFixed(2) + ' €/kWh';
+                }
+            });
+    </script>
+</body>
+</html>
