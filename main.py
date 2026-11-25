@@ -12,7 +12,10 @@ OPERATOR_LOGOS = {
     "Lidl": "https://lidl.lt",
     "Tesla Supercharger": "https://tesla.com",
     "Ionity": "https://ionity.eu",
-    "Virta": "https://virta.global"
+    "Virta": "https://virta.global",
+    "Enefit Volt": "https://enefitvolt.lt",
+    "Circle K": "https://circlek.lt",
+    "Neste": "https://neste.lt"
 }
 
 def sukurti_id(pavadinimas):
