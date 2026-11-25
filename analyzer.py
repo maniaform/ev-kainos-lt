@@ -35,16 +35,16 @@ def siusti_groq(promptas, max_tokens=1500):
 
 def nustatyti_operatoriu_tarifus(paieskos_tekstas, dabar_str):
     promptas = f"""Išanalizuok šiuos paieškos duomenis apie elektromobilių įkrovimo kainas Lietuvoje ({dabar_str}):
-{paieskos_tekstas[:5500]}
+{paieskos_tekstas[:9000]}
 
 GRIEŽTA TAISYKLĖ: Ištrauk TIK tas kainas (€/kWh), kurios yra AIŠKIAI IR TIKSLIAI nurodytos pateiktame tekste. Jei tekste kurio nors tinklo kainos nėra, palik ją tuščią (null). Niekada nespėliok ir nenaudok vidurkių! Taip pat apžvalgoje nenaudok programavimo žodžių („null“, „None“).
 
 Grąžink JSON objektą su šiais raktais:
-- "tariffs": objektas, kur raktas yra operatoriaus pavadinimas ("Ignitis ON", "Eleport", "Elinta Charge", "Inbalance grid", "Enefit Volt", "Lidl", "Ionity", "Tesla Supercharger", "Circle K", "Neste", "Virta"), o reikšmė {{"dc": 0.49, "ac": 0.37, "source_url": "https://..."}} (arba null vietoj skaičiaus, jei kainos tekste nėra).
+- "tariffs": objektas, kur raktas yra tikslus operatoriaus pavadinimas ("Ignitis ON", "Eleport", "Elinta Charge", "Inbalance grid", "Enefit Volt", "Lidl", "Ionity", "Tesla Supercharger", "Circle K", "Neste", "Virta"), o reikšmė {{"dc": 0.49, "ac": 0.37, "source_url": "https://..."}} (arba null vietoj skaičiaus, jei kainos tekste nėra; į source_url įrašyk tikrą nuorodą iš teksto).
 - "summary_dc": 2 sakinių apžvalga vairuotojams apie šiuo metu žinomas greitojo DC įkrovimo kainas Lietuvoje.
 - "summary_ac": 2 sakinių apžvalga vairuotojams apie šiuo metu žinomas lėtesnio AC įkrovimo kainas Lietuvoje."""
     try:
-        di_ats = siusti_groq(promptas)
+        di_ats = siusti_groq(promptas, max_tokens=2000)
         return {
             "tariffs": di_ats.get("tariffs") or {},
             "summary_dc": di_ats.get("summary_dc", "Greitojo DC įkrovimo kainų suvestinė atnaujinta pagal oficialius operatorių duomenis."),
