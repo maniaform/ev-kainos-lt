@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from scraper import surinkti_ev_stoteles, gauti_ev_tarifu_konteksta
 from analyzer import nustatyti_operatoriu_tarifus
+from seo import generuoti_ev_seo
 
 OPERATOR_LOGOS = {
     "Ignitis ON": "https://google.com",
@@ -138,7 +139,8 @@ def paleisti_ev_atnaujinima():
     with open("ev_prices.json", "w", encoding="utf-8") as f:
         json.dump(galutinis, f, ensure_ascii=False, indent=2)
 
-    print(f"Sėkmingai atnaujinta {len(atnaujinti_tinklai)} operatorių ir {len(stoteles)} EV stotelių!")
+    generuoti_ev_seo(galutinis)
+    print(f"Sėkmingai atnaujinta {len(atnaujinti_tinklai)} operatorių, {len(stoteles)} EV stotelių ir visi SEO puslapiai!")
 
 if __name__ == "__main__":
     paleisti_ev_atnaujinima()
