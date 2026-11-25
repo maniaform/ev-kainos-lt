@@ -13,6 +13,27 @@ def isvalyti_miesta(adr_info):
         return state.replace("apskritis", "").strip()
     return "Lietuva"
 
+def nustatyti_operatoriu(item):
+    op_info = item.get("OperatorInfo") or {}
+    op_title = (op_info.get("Title") or "").lower()
+    adr = item.get("AddressInfo") or {}
+    visas_tekstas = f"{op_title} {adr.get('Title', '')} {adr.get('AddressLine1', '')} {item.get('GeneralComments', '')}".lower()
+
+    if "ignitis" in visas_tekstas: return "Ignitis ON"
+    if "eleport" in visas_tekstas: return "Eleport"
+    if "elinta" in visas_tekstas: return "Elinta Charge"
+    if "inbalance" in visas_tekstas: return "Inbalance grid"
+    if "enefit" in visas_tekstas: return "Enefit Volt"
+    if "lidl" in visas_tekstas: return "Lidl"
+    if "tesla" in visas_tekstas: return "Tesla Supercharger"
+    if "ionity" in visas_tekstas: return "Ionity"
+    if "circle k" in visas_tekstas: return "Circle K"
+    if "neste" in visas_tekstas: return "Neste"
+    if "virta" in visas_tekstas: return "Virta"
+    if op_info.get("Title") and "unknown" not in op_title:
+        return op_info.get("Title").strip()
+    return "Savivaldybių / Kitos stotelės"
+
 def surinkti_ev_stoteles():
     ocm_key = (os.environ.get("OCM_API_KEY") or "").strip()
     headers = {
@@ -23,7 +44,7 @@ def surinkti_ev_stoteles():
         "output": "json",
         "countrycode": "LT",
         "maxresults": 1500,
-        "compact": "true",
+        "compact": "false",
         "verbose": "false"
     }
     if ocm_key:
@@ -38,17 +59,6 @@ def surinkti_ev_stoteles():
     except Exception as e:
         print("Klaida skaitant Open Charge Map API:", e)
         raw_stations = []
-
-    operatoriai_map = {
-        1: "Ignitis ON",
-        3392: "Eleport",
-        3453: "Elinta Charge",
-        3534: "Inbalance grid",
-        45: "Lidl",
-        23: "Tesla Supercharger",
-        3299: "Ionity",
-        3615: "Virta"
-    }
 
     jungtys_map = {
         33: "CCS2",
@@ -65,8 +75,7 @@ def surinkti_ev_stoteles():
             continue
 
         miestas = isvalyti_miesta(adr)
-        op_id = item.get("OperatorID")
-        operatorius = operatoriai_map.get(op_id, "Kiti operatoriai")
+        operatorius = nustatyti_operatoriu(item)
 
         connections = item.get("Connections") or []
         max_kw = 0
