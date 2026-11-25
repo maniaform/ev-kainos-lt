@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ev-kainos-lt.vercel.app/sitemap.xml
