@@ -1,29 +1,34 @@
 import os
 import requests
 
-OCM_URL = "https://openchargemap.io"
+OCM_URL = "https://" + "api.openchargemap" + ".io/v3/poi"
+TAVILY_URL = "https://" + "api.tavily" + ".com/search"
 
 def isvalyti_miesta(adr_info):
     town = (adr_info.get("Town") or "").strip()
     if town:
-        return town.split(",").strip()
+        return town.split(",")[0].strip()
     state = (adr_info.get("StateOrProvince") or "").strip()
     if state:
         return state.replace("apskritis", "").strip()
     return "Lietuva"
 
 def surinkti_ev_stoteles():
-    ocm_key = os.environ.get("OCM_API_KEY", "")
-    headers = {"User-Agent": "EVKainosLT/1.0"}
-    if ocm_key:
-        headers["X-API-Key"] = ocm_key
-
+    ocm_key = (os.environ.get("OCM_API_KEY") or "").strip()
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) EVKainosLT/1.0",
+        "Accept": "application/json"
+    }
     params = {
+        "output": "json",
         "countrycode": "LT",
         "maxresults": 1500,
         "compact": "true",
         "verbose": "false"
     }
+    if ocm_key:
+        headers["X-API-Key"] = ocm_key
+        params["key"] = ocm_key
 
     try:
         res = requests.get(OCM_URL, params=params, headers=headers, timeout=25)
@@ -94,7 +99,7 @@ def surinkti_ev_stoteles():
     return stoteles
 
 def gauti_ev_tarifu_konteksta():
-    api_key = os.environ.get("TAVILY_API_KEY")
+    api_key = (os.environ.get("TAVILY_API_KEY") or "").strip()
     if not api_key:
         return ""
     queries = [
@@ -106,7 +111,7 @@ def gauti_ev_tarifu_konteksta():
     for q in queries:
         try:
             r = requests.post(
-                "https://tavily.com",
+                TAVILY_URL,
                 json={"api_key": api_key, "query": q, "search_depth": "basic", "max_results": 3},
                 timeout=15
             )
