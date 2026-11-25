@@ -240,7 +240,24 @@
             renderLeaders(activeDisplayNetworks);
             renderNetworks(activeDisplayNetworks);
         }
-
+        function getOperatorLogoHtml(name) {
+            const colors = {
+                "Ignitis ON": { bg: "#059669", text: "#ffffff", label: "ON" },
+                "Eleport": { bg: "#2563eb", text: "#ffffff", label: "EL" },
+                "Elinta Charge": { bg: "#0284c7", text: "#ffffff", label: "EC" },
+                "Inbalance grid": { bg: "#7c3aed", text: "#ffffff", label: "IG" },
+                "Enefit Volt": { bg: "#16a34a", text: "#ffffff", label: "EV" },
+                "Lidl": { bg: "#eab308", text: "#1e3a8a", label: "LIDL" },
+                "Tesla Supercharger": { bg: "#dc2626", text: "#ffffff", label: "T" },
+                "Ionity": { bg: "#1d4ed8", text: "#ffffff", label: "IO" },
+                "Circle K": { bg: "#ea580c", text: "#ffffff", label: "CK" },
+                "Neste": { bg: "#0369a1", text: "#ffffff", label: "NE" },
+                "Virta": { bg: "#0d9488", text: "#ffffff", label: "VI" }
+            };
+            const cfg = colors[name] || { bg: "#374151", text: "#ffffff", label: name.slice(0, 2).toUpperCase() };
+            return `<div style="width:38px; height:38px; border-radius:8px; background:${cfg.bg}; color:${cfg.text}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; flex-shrink:0; letter-spacing:-0.03em;">${cfg.label}</div>`;
+        }
+          
         function renderLeaders(networks) {
             const container = document.getElementById('primary-leaders-grid');
             const pricedNetworks = networks.filter(net => typeof net.calc_price === 'number');
@@ -279,7 +296,7 @@
                 <div class="leader-card ${cardClass}">
                     <span class="leader-tag">${idx === 0 ? '🏆 1 vieta — Mažiausia kaina' : '🥈 2 vieta — Antra mažiausia kaina'}</span>
                     <div class="network-brand-header" style="margin-bottom: 12px;">
-                        ${item.logo ? `<img src="${item.logo}" alt="${item.networkName}" class="network-logo">` : ''}
+                        ${getOperatorLogoHtml(item.networkName)}
                         <div>
                             <div class="leader-network">${item.networkName}</div>
                             <span class="kw-badge">⚡ Galia iki ${st.power_kw} kW • ${(st.connectors || []).join(', ')}</span>
@@ -313,7 +330,7 @@
                     <div>
                         <div class="card-header">
                             <div class="network-brand-header">
-                                ${net.logo_url ? `<img src="${net.logo_url}" alt="${net.name}" class="network-logo">` : ''}
+                                ${getOperatorLogoHtml(net.name)}
                                 <span class="network-name">${net.name}</span>
                             </div>
                             <span class="kw-badge">iki ${net.max_kw} kW</span>
