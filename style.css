@@ -1,0 +1,292 @@
+:root {
+    --bg-page: #edf1f5;
+    --bg-card: #ffffff;
+    --bg-totem: #111827;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border-light: #cbd5e1;
+    --accent-green: #10b981;
+    --accent-green-dark: #059669;
+    --accent-blue: #3b82f6;
+    --shadow-sm: 0 2px 6px -1px rgba(15, 23, 42, 0.06), 0 1px 3px -1px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-page);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.06) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+
+/* --- VIRŠUTINĖ JUOSTA --- */
+.header {
+    background: var(--bg-totem);
+    color: #ffffff;
+    padding: 18px 0;
+    border-bottom: 3px solid var(--accent-green);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
+.logo span { color: var(--accent-green); }
+
+.header-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.fuel-switch {
+    display: flex;
+    background: #1f2937;
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid #374151;
+}
+
+.fuel-btn {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.fuel-btn.active { background: var(--accent-green); color: #111827; }
+.fuel-btn.ac-active { background: var(--accent-blue); color: #ffffff; }
+.fuel-btn.free-active { background: #f59e0b; color: #111827; }
+
+.update-badge {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    background: #1f2937;
+    padding: 6px 12px;
+    border-radius: 99px;
+}
+
+/* --- APŽVALGOS IR VALDIKLIO JUOSTA --- */
+.top-hero-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin: 22px 0;
+    align-items: stretch;
+}
+
+@media (max-width: 768px) { .top-hero-grid { grid-template-columns: 1fr; } }
+
+.summary-bar {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #a7f3d0;
+    border-left: 5px solid var(--accent-green);
+    padding: 18px 20px;
+    border-radius: 14px;
+    color: #065f46;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.widget-promo-card {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border: 1px solid #374151;
+    border-radius: 14px;
+    padding: 16px 20px;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.widget-promo-card:hover { transform: translateY(-2px); border-color: var(--accent-green); }
+.widget-promo-badge { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; width: fit-content; }
+.widget-promo-title { font-size: 1.02rem; font-weight: 800; margin-bottom: 4px; }
+.widget-promo-sub { font-size: 0.8rem; color: #d1d5db; }
+
+/* --- DVIGUBAS FILTRAS (VIETOVĖ + JUNGTIS) --- */
+.filter-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 768px) { .filter-bar { grid-template-columns: 1fr; } }
+
+.filter-group { display: flex; flex-direction: column; gap: 6px; }
+.filter-label { font-weight: 700; font-size: 0.85rem; color: var(--text-muted); }
+
+.city-select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-main);
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+/* --- LYDERIŲ KORTELĖS --- */
+.section-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+.leaders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 18px;
+    margin-bottom: 34px;
+}
+
+.leader-card {
+    background: var(--bg-totem);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid #374151;
+}
+
+.leader-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.18);
+    color: #6ee7b7;
+    margin-bottom: 12px;
+}
+
+.network-brand-header { display: flex; align-items: center; gap: 12px; }
+.network-logo { width: 38px; height: 38px; object-fit: contain; background: #ffffff; border-radius: 8px; padding: 4px; border: 1px solid var(--border-light); flex-shrink: 0; }
+.leader-network { font-size: 1.45rem; font-weight: 800; }
+.leader-location { font-size: 0.86rem; color: #d1d5db; margin-bottom: 14px; }
+
+.digital-price-box {
+    background: #030712;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.digital-number { font-family: 'JetBrains Mono', monospace; font-size: 1.9rem; font-weight: 800; color: #34d399; }
+.ac-card .digital-number { color: #60a5fa; }
+
+.meta-info { font-size: 0.78rem; color: #9ca3af; display: flex; flex-direction: column; gap: 6px; }
+.meta-info a { color: #6ee7b7; text-decoration: none; font-weight: 600; }
+
+.kw-badge {
+    display: inline-block;
+    background: rgba(59, 130, 246, 0.15);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.leader-card .kw-badge { background: rgba(96, 165, 250, 0.2); color: #93c5fd; border-color: rgba(96, 165, 250, 0.3); }
+
+/* --- TINKLŲ KORTELĖS --- */
+.networks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 18px;
+    margin-bottom: 40px;
+}
+
+.network-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.network-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+.network-name { font-size: 1.15rem; font-weight: 800; }
+
+.price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.price-value { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 800; }
+.price-secondary { font-family: 'JetBrains Mono', monospace; font-size: 0.98rem; font-weight: 700; color: var(--text-muted); }
+
+.diff-badge { font-size: 0.72rem; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
+.diff-down { background: #dcfce7; color: #166534; }
+.diff-up { background: #fee2e2; color: #991b1b; }
+.diff-same { background: #f1f5f9; color: #64748b; }
+
+.card-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light); display: flex; flex-direction: column; gap: 5px; }
+.card-meta a { color: var(--accent-green-dark); font-weight: 600; text-decoration: none; }
+
+.stations-btn {
+    margin-top: 16px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    background: #f8fafc;
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.stations-btn:hover { background: var(--bg-totem); color: #ffffff; border-color: var(--bg-totem); }
+
+/* --- MODALINIS LANGAS --- */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 100; }
+.modal-backdrop.active { display: flex; }
+.modal-box { background: #ffffff; width: 100%; max-width: 860px; max-height: 85vh; border-radius: 18px; padding: 24px; overflow-y: auto; }
+.modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.close-btn { background: #f1f5f9; border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; font-weight: 700; }
+
+.stations-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.stations-table th { text-align: left; padding: 10px; background: #f8fafc; border-bottom: 2px solid var(--border-light); }
+.stations-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+.mono { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+.footer { background: var(--bg-totem); color: #9ca3af; padding: 24px 0; text-align: center; font-size: 0.82rem; margin-top: 40px; }
