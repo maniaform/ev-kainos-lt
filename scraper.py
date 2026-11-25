@@ -112,21 +112,26 @@ def gauti_ev_tarifu_konteksta():
     if not api_key:
         return ""
     queries = [
-        "Ignitis ON įkrovimo kainos kWh DC AC Lietuvoje",
-        "Eleport Elinta Charge Inbalance grid įkrovimo kainos kWh",
-        "Ionity Lidl Tesla įkrovimo kaina kWh Lietuvoje"
+        "Ignitis ON įkrovimo kaina kWh DC AC tarifai",
+        "Eleport įkrovimo kainos kWh Lietuva DC AC",
+        "Elinta Charge įkrovimo kaina kWh tarifai",
+        "Inbalance grid įkrovimo kaina kWh tarifai",
+        "Enefit Volt įkrovimo kaina kWh Lietuva",
+        "Lidl įkrovimo stotelės kaina kWh Lietuvoje",
+        "Ionity Tesla Supercharger įkrovimo kaina kWh Lietuva",
+        "Circle K Neste įkrovimo kaina kWh Lietuvoje"
     ]
     rezultatai = []
     for q in queries:
         try:
             r = requests.post(
                 TAVILY_URL,
-                json={"api_key": api_key, "query": q, "search_depth": "basic", "max_results": 3},
+                json={"api_key": api_key, "query": q, "search_depth": "basic", "max_results": 2},
                 timeout=15
             )
             if r.ok:
                 for item in r.json().get("results", []):
-                    rezultatai.append(f"[{item.get('title')}]: {item.get('content')}")
+                    rezultatai.append(f"[{item.get('title')} ({item.get('url')})]: {item.get('content')}")
         except Exception:
             pass
     return "\n".join(rezultatai)
