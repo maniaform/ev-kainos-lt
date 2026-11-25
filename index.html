@@ -243,12 +243,14 @@
 
         function renderLeaders(networks) {
             const container = document.getElementById('primary-leaders-grid');
-            if (networks.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted);">Pagal pasirinktus filtrus įkrovimo taškų nerasta.</p>`;
+            const pricedNetworks = networks.filter(net => typeof net.calc_price === 'number');
+
+            if (pricedNetworks.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted);">Šioje vietovėje patvirtintų įkrovimo kainų šiuo metu nėra.</p>`;
                 return;
             }
 
-            let topTwo = networks.slice(0, 2).map(net => ({
+            let topTwo = pricedNetworks.slice(0, 2).map(net => ({
                 networkName: net.name,
                 logo: net.logo_url,
                 station: net.bestStation,
@@ -256,15 +258,18 @@
                 sourceUrl: net.source_url
             }));
 
-            if (topTwo.length === 1 && networks[0].filteredStations.length >= 2) {
-                const net = networks[0];
-                topTwo.push({
-                    networkName: net.name,
-                    logo: net.logo_url,
-                    station: net.filteredStations[1],
-                    diff: net.calc_diff,
-                    sourceUrl: net.source_url
-                });
+            if (topTwo.length === 1 && pricedNetworks[0].filteredStations.length >= 2) {
+                const net = pricedNetworks[0];
+                const pricedStations = net.filteredStations.filter(s => typeof s.price === 'number');
+                if (pricedStations.length >= 2) {
+                    topTwo.push({
+                        networkName: net.name,
+                        logo: net.logo_url,
+                        station: pricedStations[1],
+                        diff: net.calc_diff,
+                        sourceUrl: net.source_url
+                    });
+                }
             }
 
             const cardClass = currentMode === 'ac' ? 'ac-card' : '';
