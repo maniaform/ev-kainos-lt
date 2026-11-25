@@ -29,10 +29,10 @@
     <main class="container">
         <div class="top-hero-grid">
             <div class="summary-bar" id="daily-summary">Kraunama EV įkrovimo rinkos apžvalga...</div>
-            <div class="widget-promo-card" onclick="alert('EV įkrovimo švieslentės valdiklis bus pasiekiamas iškart po pirmo duomenų atnaujinimo!')">
-                <span class="widget-promo-badge">Elektromobiliams</span>
-                <div class="widget-promo-title">⚡ Visos Lietuvos EV stotelės</div>
-                <div class="widget-promo-sub">Filtruokite pagal miestą, jungties tipą (CCS2, Type 2, CHAdeMO) ir galią (kW) →</div>
+            <div class="widget-promo-card" onclick="openWidgetModal()">
+                <span class="widget-promo-badge">Nemokamas įrankis</span>
+                <div class="widget-promo-title">📊 Nemokama EV kainų švieslentė jūsų svetainei</div>
+                <div class="widget-promo-sub">Įsidėkite automatiškai atsinaujinančias DC ir AC įkrovimo kainas →</div>
             </div>
         </div>
 
@@ -90,7 +90,26 @@
             <p style="margin-top: 6px;">Duomenys atnaujinami 4 kartus per parą iš Open Charge Map ir oficialių operatorių šaltinių.</p>
         </div>
     </footer>
-
+    <div id="widget-modal" class="modal-backdrop" onclick="closeWidgetModal()">
+        <div class="modal-box" style="max-width: 580px;" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <h3 style="font-size: 1.3rem; font-weight: 800;">📊 Įsidėkite nemokamą EV kainų švieslentę</h3>
+                <button class="close-btn" onclick="closeWidgetModal()">&times;</button>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">
+                Kainos atsinaujina pačios 4 kartus per parą, o valdiklis visiškai neapkrauna jūsų svetainės. Kodą dėkite į HTML redaktorių ir palikite <code>width="100%"</code>.
+            </p>
+            <textarea id="widget-embed-code" readonly rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-light); background: #f3f4f6; font-family: monospace; font-size: 0.8rem; resize: none;"><iframe src="https://ev-kainos-lt.vercel.app/" width="100%" height="190" frameborder="0" scrolling="no" style="border:none; border-radius:12px; max-width:400px; overflow:hidden; display:block;"></iframe></textarea>
+            <button onclick="copyWidgetCode()" id="copy-widget-btn" style="background: var(--accent-green); color: #111827; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; width: 100%; cursor: pointer; margin-top: 10px;">📋 Kopijuoti kodą į atmintinę</button>
+            <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-light);">
+                <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 8px;">Taip atrodytų švieslentė jūsų puslapyje šiandien:</div>
+                <div style="display: flex; justify-content: center; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                    <iframe src="widget.html" width="100%" height="190" frameborder="0" scrolling="no" style="border:none; border-radius:12px; max-width:400px; overflow:hidden; display:block;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    
       <script>
         let rawData = null;
         let currentMode = 'dc';
@@ -405,6 +424,24 @@
         function closeModal() {
             document.getElementById('stations-modal').classList.remove('active');
             document.body.style.overflow = 'auto';
+        }
+
+        function openWidgetModal() {
+            document.getElementById('widget-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeWidgetModal() {
+            document.getElementById('widget-modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        function copyWidgetCode() {
+            const box = document.getElementById('widget-embed-code');
+            box.select();
+            box.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(box.value);
+            const btn = document.getElementById('copy-widget-btn');
+            btn.textContent = '✅ Kodas sėkmingai nukopijuotas!';
+            setTimeout(() => { btn.textContent = '📋 Kopijuoti kodą į atmintinę'; }, 3000);
         }
 
         loadEvData();
