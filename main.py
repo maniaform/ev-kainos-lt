@@ -5,17 +5,17 @@ from scraper import surinkti_ev_stoteles, gauti_ev_tarifu_konteksta
 from analyzer import nustatyti_operatoriu_tarifus
 
 OPERATOR_LOGOS = {
-    "Ignitis ON": "https://ignitison.lt",
-    "Eleport": "https://eleport.com",
-    "Elinta Charge": "https://elintacharge.com",
-    "Inbalance grid": "https://inbalancegrid.com",
-    "Lidl": "https://lidl.lt",
-    "Tesla Supercharger": "https://tesla.com",
-    "Ionity": "https://ionity.eu",
-    "Virta": "https://virta.global",
-    "Enefit Volt": "https://enefitvolt.lt",
-    "Circle K": "https://circlek.lt",
-    "Neste": "https://neste.lt"
+    "Ignitis ON": "https://google.com",
+    "Eleport": "https://google.com",
+    "Elinta Charge": "https://google.com",
+    "Inbalance grid": "https://google.com",
+    "Enefit Volt": "https://google.com",
+    "Lidl": "https://google.com",
+    "Tesla Supercharger": "https://google.com",
+    "Ionity": "https://google.com",
+    "Circle K": "https://google.com",
+    "Neste": "https://google.com",
+    "Virta": "https://google.com"
 }
 
 def sukurti_id(pavadinimas):
@@ -41,7 +41,7 @@ def paleisti_ev_atnaujinima():
 
     try:
         di_rezultatas = nustatyti_operatoriu_tarifus(paieskos_tekstas, dabar)
-        tarifai = di_rezultatas.get("tariffs", {})
+        tarifai = di_rezultatas.get("tariffs") or {}
     except Exception as e:
         print("Klaida nustatant tarifus per DI:", e)
         di_rezultatas = {}
@@ -53,10 +53,23 @@ def paleisti_ev_atnaujinima():
     for st in stoteles:
         op_name = st["operator"]
         op_id = sukurti_id(op_name)
-        op_tarifas = tarifai.get(op_name, {})
+        op_tarifas = tarifai.get(op_name) or {}
 
-        dc_kaina = 0.0 if st["is_free"] else op_tarifas.get("dc")
-        ac_kaina = 0.0 if st["is_free"] else op_tarifas.get("ac")
+        ocm_kaina = None
+        if st["is_free"]:
+            ocm_kaina = 0.0
+        elif st.get("raw_cost"):
+            m = re.search(r'(\d+[.,]\d+)', str(st["raw_cost"]))
+            if m:
+                try:
+                    val = float(m.group(1).replace(',', '.'))
+                    if 0.05 <= val <= 2.50:
+                        ocm_kaina = round(val, 2)
+                except ValueError:
+                    pass
+
+        dc_kaina = ocm_kaina if ocm_kaina is not None else op_tarifas.get("dc")
+        ac_kaina = ocm_kaina if ocm_kaina is not None else op_tarifas.get("ac")
 
         if op_id not in tinklai_dict:
             senas_net = seni_tinklai_map.get(op_id, {})
@@ -117,8 +130,8 @@ def paleisti_ev_atnaujinima():
 
     galutinis = {
         "last_updated": dabar,
-        "summary_dc": di_rezultatas.get("summary_dc", seni_duomenys.get("summary_dc", "Greitojo DC įkrovimo kainos atnaujintos.")),
-        "summary_ac": di_rezultatas.get("summary_ac", seni_duomenys.get("summary_ac", "Lėtesnio AC įkrovimo kainos atnaujintos.")),
+        "summary_dc": di_rezultatas.get("summary_dc", seni_duomenys.get("summary_dc", "Greitojo DC įkrovimo stotelių duomenys atnaujinti.")),
+        "summary_ac": di_rezultatas.get("summary_ac", seni_duomenys.get("summary_ac", "Lėtesnio AC įkrovimo stotelių duomenys atnaujinti.")),
         "networks": atnaujinti_tinklai
     }
 
