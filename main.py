@@ -100,7 +100,7 @@ def paleisti_ev_atnaujinima():
                 "max_power_kw": 0,
                 "price_time": dabar,
                 "source_name": "Open Charge Map / Operatoriai",
-                "source_url": op_tarifas.get("source_url") or "https://openchargemap.org",
+                "source_url": OPERATOR_URLS.get(op_name) or op_tarifas.get("source_url") or "https://openchargemap.org",
                 "stations": [],
                 "_old_dc": senas_net.get("best_dc"),
                 "_old_ac": senas_net.get("best_ac")
