@@ -31,8 +31,10 @@ def nustatyti_operatoriu(item):
     adr = item.get("AddressInfo") or {}
     visas_tekstas = f"{op_title} {adr.get('Title', '')} {adr.get('AddressLine1', '')} {item.get('GeneralComments', '')}".lower()
 
-    if "ignitis" in visas_tekstas or "eso " in visas_tekstas or op_title == "eso":
+    ignitis_raktai = ["ignitis", "eso", "lakd", "via lietuva", "automobilių kelių direkcija"]
+    if any(k in visas_tekstas for k in ignitis_raktai):
         return "Ignitis ON"
+
     if "eleport" in visas_tekstas: return "Eleport"
     if "elinta" in visas_tekstas: return "Elinta Charge"
     if "inbalance" in visas_tekstas: return "Inbalance grid"
