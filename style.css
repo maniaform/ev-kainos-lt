@@ -300,6 +300,9 @@ body {
 .stations-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 .stations-table th { text-align: left; padding: 10px; background: #f8fafc; border-bottom: 2px solid var(--border-light); }
 .stations-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
-.mono { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
 
 .footer { background: var(--bg-totem); color: #9ca3af; padding: 24px 0; text-align: center; font-size: 0.82rem; margin-top: 40px; }
