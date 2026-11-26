@@ -18,7 +18,8 @@ OPERATORIU_PUSLAPIAI = {
 def isvalyti_miesta(adr_info):
     town = (adr_info.get("Town") or "").strip()
     if town:
-        return town.split(",").strip()
+        dalys = town.split(",")
+        return dalys[0].strip()
     state = (adr_info.get("StateOrProvince") or "").strip()
     if state:
         return state.replace("apskritis", "").strip()
