@@ -39,17 +39,20 @@ def normalizuoti_jungti(sdr_code):
         return "Type 2"
     return code if code else "Type 2"
 
-def istraukti_kaina_is_teksto(price_str):
+def istraukti_kaina_is_teksto(price_str, operatorius=""):
     if not price_str:
         return None, False
     p_low = str(price_str).lower().strip()
-    if "free" in p_low or "nemokam" in p_low:
+    komerciniai_tinklai = ["stuart", "ignitis", "eleport", "elinta", "inbalance", "enefit", "ionity", "tesla", "circle k", "neste", "virta"]
+    yra_komercinis = any(k in operatorius.lower() for k in komerciniai_tinklai)
+
+    if ("free" in p_low or "nemokam" in p_low) and not yra_komercinis:
         return 0.0, True
+
     m = re.search(r'(\d+[.,]\d+)', p_low)
     if m:
         try:
             val = float(m.group(1).replace(',', '.'))
-            # Skaičius 0.00 be žodžio "nemokama" dažniausiai reiškia tuščią registro lauką, o ne nemokamą įkrovimą
             if 0.05 <= val <= 3.00:
                 return round(val, 2), False
         except ValueError:
@@ -112,7 +115,7 @@ def surinkti_ev_stoteles():
                 j_tipas = normalizuoti_jungti(conn.get("sdr"))
                 jungciu_tipai.add(j_tipas)
 
-                kaina_val, is_free = istraukti_kaina_is_teksto(conn.get("price"))
+                kaina_val, is_free = istraukti_kaina_is_teksto(conn.get("price"), operatorius)
                 if is_free:
                     yra_nemokama = True
                 if kaina_val is not None:
