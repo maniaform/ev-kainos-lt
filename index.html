@@ -173,7 +173,7 @@
 
         function formatEvPrice(val, isFree) {
             if (isFree || val === 0) return '0.00 €/kWh (Nemokama)';
-            return typeof val === 'number' ? `${val.toFixed(2)} €/kWh` : 'Kaina programėlėje';
+            return typeof val === 'number' ? `${val.toFixed(2)} €/kWh` : '';
         }
 
         function formatDiff(diff) {
