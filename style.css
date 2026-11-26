@@ -258,7 +258,12 @@ body {
 .network-name { font-size: 1.15rem; font-weight: 800; }
 
 .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.price-value { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 800; }
+.price-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
 .price-secondary { font-family: 'JetBrains Mono', monospace; font-size: 0.98rem; font-weight: 700; color: var(--text-muted); }
 
 .diff-badge { font-size: 0.72rem; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
