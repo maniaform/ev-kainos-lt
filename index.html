@@ -171,13 +171,13 @@
             renderAll();
         }
 
-        function formatEvPrice(val, isFree) {
+        function formatEvPrice(val, isFree, url) {
             if (isFree || val === 0) return '0.00 €/kWh (Nemokama)';
-            return typeof val === 'number' 
-                ? `${val.toFixed(2)} €/kWh` 
-                : `<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Tarifas programėlėje</span>`;
+            if (typeof val === 'number') return `${val.toFixed(2)} €/kWh`;
+            const targetUrl = url || 'https://openchargemap.org';
+            return `<a href="${targetUrl}" target="_blank" rel="noopener" style="font-size: 0.85rem; color: var(--accent-blue); font-weight: 700; text-decoration: underline;">Tarifas programėlėje ↗</a>`;
         }
-
+          
         function formatDiff(diff) {
             if (!diff || Math.abs(diff) < 0.001) return `<span class="diff-badge diff-same">0.00 € =</span>`;
             return diff < 0 
@@ -330,7 +330,7 @@
                     <div class="leader-location">📍 ${st.city}, ${st.address}</div>
                     <div class="digital-price-box">
                         <span style="font-size: 0.85rem; color: #9ca3af; font-weight: 600;">${currentMode.toUpperCase()} Tarifas</span>
-                        <span class="digital-number">${formatEvPrice(st.price, st.is_free)}${formatDiff(item.diff)}</span>
+                        <span class="digital-number">${formatEvPrice(st.price, st.is_free, item.sourceUrl)}${formatDiff(item.diff)}</span>
                     </div>
                     <div class="meta-info">
                         <span>🕒 Atnaujinta: <strong>${st.time}</strong></span>
@@ -362,7 +362,7 @@
                         </div>
                         <div class="price-row">
                             <span style="font-weight: 600;">${modeLabel}</span>
-                            <span class="price-value">${formatEvPrice(st.price, st.is_free)}${formatDiff(net.calc_diff)}</span>
+                            <span class="price-value">${formatEvPrice(st.price, st.is_free, net.source_url)}${formatDiff(net.calc_diff)}</span>
                         </div>
                         <div class="card-meta">
                             <span>🔌 Jungtys: <strong>${(st.connectors || []).join(', ')}</strong></span>
@@ -419,7 +419,7 @@
                                 <td>${s.address}</td>
                                 <td>${(s.connectors || []).join(', ')}</td>
                                 <td><span class="kw-badge">${s.power_kw} kW</span></td>
-                                <td class="mono" style="color: var(--accent-green-dark);">${formatEvPrice(s.price, s.is_free)}</td>
+                                <td class="mono" style="color: var(--accent-green-dark);">${formatEvPrice(s.price, s.is_free, '')}</td>
                             </tr>
                         `).join('')}
                     </tbody>
