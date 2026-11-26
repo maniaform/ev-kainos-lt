@@ -128,8 +128,17 @@ def nuskaityti_oficialius_puslapius():
                 soup = BeautifulSoup(r.text, "html.parser")
                 for tag in soup(["script", "style", "nav", "footer", "header"]):
                     tag.decompose()
+
+                # Speciali taisyklė Eleport: imame tik tikrąjį Lietuvos tarifų bloką (data-id="bb01b44")
+                if op_name == "Eleport":
+                    lt_blokas = soup.find(attrs={"data-id": "bb01b44"})
+                    if lt_blokas:
+                        lt_tekstas = " ".join(lt_blokas.get_text(separator=" ").split())
+                        surinktas_tekstas.append(f"=== OFICIALUS PUSLAPIS (LIETUVA): {op_name} ({url}) ===\n{lt_tekstas}")
+                        print("Nuskaitytos oficialios Eleport Lietuvos kainos.")
+                    continue
+
                 tekstas = " ".join(soup.get_text(separator=" ").split())
-                # Išrenkame tik tas atkarpas, kuriose minimos kainos (kWh, €, EUR, DC, AC)
                 zodziai = tekstas.split(" ")
                 aktualios = []
                 for i, z in enumerate(zodziai):
