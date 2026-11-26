@@ -1,13 +1,24 @@
 import os
 import requests
+from bs4 import BeautifulSoup
 
 OCM_URL = "https://" + "api.openchargemap" + ".io/v3/poi"
 TAVILY_URL = "https://" + "api.tavily" + ".com/search"
 
+OPERATORIU_PUSLAPIAI = {
+    "Ignitis ON": "https://" + "ignitison" + ".lt",
+    "Eleport": "https://" + "eleport" + ".com/lt/ikrovimo-kainos/",
+    "Elinta Charge": "https://" + "elintacharge" + ".com",
+    "Inbalance grid": "https://" + "inbalancegrid" + ".com",
+    "Enefit Volt": "https://" + "enefitvolt" + ".lt/ikrovimo-kainos",
+    "Ionity": "https://" + "ionity" + ".eu/en/network/access-and-payment",
+    "Virta": "https://" + "www.virta" + ".global/lt"
+}
+
 def isvalyti_miesta(adr_info):
     town = (adr_info.get("Town") or "").strip()
     if town:
-        return town.split(",")[0].strip()
+        return town.split(",").strip()
     state = (adr_info.get("StateOrProvince") or "").strip()
     if state:
         return state.replace("apskritis", "").strip()
@@ -60,14 +71,9 @@ def surinkti_ev_stoteles():
         print("Klaida skaitant Open Charge Map API:", e)
         raw_stations = []
 
-    jungtys_map = {
-        33: "CCS2",
-        25: "Type 2",
-        2: "CHAdeMO",
-        1036: "Type 2"
-    }
-
+    jungtys_map = {33: "CCS2", 25: "Type 2", 2: "CHAdeMO", 1036: "Type 2"}
     stoteles = []
+
     for item in raw_stations:
         adr = item.get("AddressInfo") or {}
         adresas = (adr.get("AddressLine1") or adr.get("Title") or "").strip()
@@ -107,31 +113,56 @@ def surinkti_ev_stoteles():
 
     return stoteles
 
-def gauti_ev_tarifu_konteksta():
-    api_key = (os.environ.get("TAVILY_API_KEY") or "").strip()
-    if not api_key:
-        return ""
-    queries = [
-        "Ignitis ON įkrovimo kaina kWh DC AC tarifai",
-        "Eleport įkrovimo kainos kWh Lietuva DC AC",
-        "Elinta Charge įkrovimo kaina kWh tarifai",
-        "Inbalance grid įkrovimo kaina kWh tarifai",
-        "Enefit Volt įkrovimo kaina kWh Lietuva",
-        "Lidl įkrovimo stotelės kaina kWh Lietuvoje",
-        "Ionity Tesla Supercharger įkrovimo kaina kWh Lietuva",
-        "Circle K Neste įkrovimo kaina kWh Lietuvoje"
-    ]
-    rezultatai = []
-    for q in queries:
+def nuskaityti_oficialius_puslapius():
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    surinktas_tekstas = []
+
+    for op_name, url in OPERATORIU_PUSLAPIAI.items():
         try:
-            r = requests.post(
-                TAVILY_URL,
-                json={"api_key": api_key, "query": q, "search_depth": "basic", "max_results": 2},
-                timeout=15
-            )
+            r = requests.get(url, headers=headers, timeout=12)
             if r.ok:
-                for item in r.json().get("results", []):
-                    rezultatai.append(f"[{item.get('title')} ({item.get('url')})]: {item.get('content')}")
-        except Exception:
-            pass
-    return "\n".join(rezultatai)
+                soup = BeautifulSoup(r.text, "html.parser")
+                for tag in soup(["script", "style", "nav", "footer", "header"]):
+                    tag.decompose()
+                tekstas = " ".join(soup.get_text(separator=" ").split())
+                # Išrenkame tik tas atkarpas, kuriose minimos kainos (kWh, €, EUR, DC, AC)
+                zodziai = tekstas.split(" ")
+                aktualios = []
+                for i, z in enumerate(zodziai):
+                    if any(k in z.lower() for k in ["kwh", "€", "eur", "tarif", "kain"]):
+                        fragmentas = " ".join(zodziai[max(0, i-12):min(len(zodziai), i+15)])
+                        aktualios.append(fragmentas)
+                if aktualios:
+                    unikalios = list(dict.fromkeys(aktualios))[:6]
+                    surinktas_tekstas.append(f"=== OFICIALUS PUSLAPIS: {op_name} ({url}) ===\n" + " | ".join(unikalios))
+                    print(f"Nuskaitytas oficialus {op_name} puslapis.")
+        except Exception as e:
+            print(f"Nepavyko tiesiogiai nuskaityti {op_name}: {e}")
+
+    return "\n".join(surinktas_tekstas)
+
+def gauti_ev_tarifu_konteksta():
+    tiesioginiai_duomenys = nuskaityti_oficialius_puslapius()
+    api_key = (os.environ.get("TAVILY_API_KEY") or "").strip()
+    paieskos_duomenys = []
+
+    if api_key:
+        queries = [
+            "Ignitis ON įkrovimo kaina kWh DC AC tarifai",
+            "Eleport Elinta Charge Inbalance grid įkrovimo kaina kWh",
+            "Enefit Volt Lidl Ionity Tesla įkrovimo kaina kWh Lietuva"
+        ]
+        for q in queries:
+            try:
+                r = requests.post(
+                    TAVILY_URL,
+                    json={"api_key": api_key, "query": q, "search_depth": "basic", "max_results": 2},
+                    timeout=15
+                )
+                if r.ok:
+                    for item in r.json().get("results", []):
+                        paieskos_duomenys.append(f"[{item.get('title')} ({item.get('url')})]: {item.get('content')}")
+            except Exception:
+                pass
+
+    return tiesioginiai_duomenys + "\n\n" + "\n".join(paieskos_duomenys)
