@@ -44,7 +44,13 @@ body {
     gap: 14px;
 }
 
-.logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
+.logo {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
 .logo span { color: var(--accent-green); }
 
 .header-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -161,7 +167,17 @@ body {
 }
 
 /* --- LYDERIŲ KORTELĖS --- */
-.section-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+    margin: 28px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
 .leaders-grid {
     display: grid;
@@ -193,7 +209,13 @@ body {
 
 .network-brand-header { display: flex; align-items: center; gap: 12px; }
 .network-logo { width: 38px; height: 38px; object-fit: contain; background: #ffffff; border-radius: 8px; padding: 4px; border: 1px solid var(--border-light); flex-shrink: 0; }
-.leader-network { font-size: 1.45rem; font-weight: 800; }
+.leader-network {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+}
 .leader-location { font-size: 0.86rem; color: #d1d5db; margin-bottom: 14px; }
 
 .digital-price-box {
@@ -255,7 +277,13 @@ body {
 
 .network-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
-.network-name { font-size: 1.15rem; font-weight: 800; }
+.network-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+}
 
 .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .price-value {
