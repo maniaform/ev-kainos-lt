@@ -13,7 +13,7 @@ def sukurti_slug(tekstas):
 def formatuoti_kaina(val, is_free):
     if is_free or val == 0:
         return "0.00 € (Nemokama)"
-    return f"{val:.2f} €/kWh" if isinstance(val, (int, float)) else "—"
+    return f"{val:.2f} €/kWh" if isinstance(val, (int, float)) else "Tarifas programėlėje"
 
 def generuoti_ev_seo(duomenys):
     os.makedirs("tinklai", exist_ok=True)
@@ -39,7 +39,7 @@ def generuoti_ev_seo(duomenys):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{net['name']} EV įkrovimo kainos (€/kWh) ir stotelės | EV kainos Lietuvoje</title>
+    <title>{net['name']} elektromobilių įkrovimo kainos (€/kWh) ir stotelės | EV kainos Lietuvoje</title>
     <meta name="description" content="Naujausios {net['name']} elektromobilių įkrovimo kainos (€/kWh), stotelių adresai, jungtys (CCS2, Type 2) ir galia iki {net.get('max_power_kw', 0)} kW. Iš viso {len(net.get('stations', []))} stotelės.">
     <link rel="canonical" href="{pilnas_url}">
     <link rel="stylesheet" href="../style.css">
@@ -52,7 +52,7 @@ def generuoti_ev_seo(duomenys):
         </div>
     </header>
     <main class="container" style="padding-top: 32px; padding-bottom: 60px;">
-        <h1 class="section-title" style="font-size: 1.75rem;">⚡ {net['name']} — įkrovimo stotelės ir kainos</h1>
+        <h1 class="section-title" style="font-size: 1.75rem;">⚡ {net['name']} — elektromobilių įkrovimo stotelės ir kainos</h1>
         <p style="color: var(--text-muted); margin-bottom: 24px;">Atnaujinta: {duomenys['last_updated']} • Maksimali galia: iki {net.get('max_power_kw', 0)} kW • Stotelių skaičius: {len(net.get('stations', []))}</p>
         <div style="background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--border-light); overflow-x:auto;">
             <table class="stations-table">
@@ -99,7 +99,7 @@ def generuoti_ev_seo(duomenys):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV įkrovimo stotelės ir kainos: {miestas} (€/kWh, kW) | EV kainos Lietuvoje</title>
+    <title>Elektromobilių įkrovimo stotelės ir kainos: {miestas} (€/kWh, kW) | EV kainos Lietuvoje</title>
     <meta name="description" content="Visos elektromobilių įkrovimo stotelės vietovėje {miestas} ({len(stotys)} taškai). Patikrinkite kainas (€/kWh), jungčių tipus (CCS2, Type 2) ir galią (kW).">
     <link rel="canonical" href="{m_url}">
     <link rel="stylesheet" href="../style.css">
@@ -112,7 +112,7 @@ def generuoti_ev_seo(duomenys):
         </div>
     </header>
     <main class="container" style="padding-top: 32px; padding-bottom: 60px;">
-        <h1 class="section-title" style="font-size: 1.75rem;">📍 EV įkrovimo stotelės — {miestas}</h1>
+        <h1 class="section-title" style="font-size: 1.75rem;">📍 Elektromobilių įkrovimo stotelės — {miestas}</h1>
         <p style="color: var(--text-muted); margin-bottom: 24px;">Atnaujinta: {duomenys['last_updated']} • Rasta stotelių: {len(stotys)}</p>
         <div style="background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--border-light); overflow-x:auto;">
             <table class="stations-table">
@@ -126,7 +126,7 @@ def generuoti_ev_seo(duomenys):
         with open(m_kelias, "w", encoding="utf-8") as f:
             f.write(m_html)
 
-      # 3. MAGISTRALINIŲ KELIŲ SEO PUSLAPIAI
+    # 3. MAGISTRALINIŲ KELIŲ SEO PUSLAPIAI
     magistrales = [
         {"slug": "a1-vilnius-kaunas-klaipeda", "name": "Magistralė A1 (Vilnius – Kaunas – Klaipėda)", "raktazodziai": ["a1", "vilniaus pl", "kauno pl", "klaipėdos pl", "savanorių pr", "islandijos pl", "jakų"]},
         {"slug": "a2-vilnius-panevezys", "name": "Magistralė A2 (Vilnius – Ukmergė – Panevėžys)", "raktazodziai": ["a2", "ukmergės", "širvint"]},
@@ -163,7 +163,7 @@ def generuoti_ev_seo(duomenys):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV įkrovimas kelyje: {kelias['name']} (€/kWh, kW) | EV kainos Lietuvoje</title>
+    <title>Elektromobilių įkrovimas kelyje: {kelias['name']} (€/kWh, kW) | EV kainos Lietuvoje</title>
     <meta name="description" content="Elektromobilių įkrovimo stotelės pakeliui: {kelias['name']}. Rasta {len(k_stotys)} įkrovimo taškų su nurodyta galia (kW) ir kainomis (€/kWh).">
     <link rel="canonical" href="{k_url}">
     <link rel="stylesheet" href="../style.css">
@@ -176,7 +176,7 @@ def generuoti_ev_seo(duomenys):
         </div>
     </header>
     <main class="container" style="padding-top: 32px; padding-bottom: 60px;">
-        <h1 class="section-title" style="font-size: 1.75rem;">🛣️ EV įkrovimas kelyje: {kelias['name']}</h1>
+        <h1 class="section-title" style="font-size: 1.75rem;">🛣️ Elektromobilių įkrovimas kelyje: {kelias['name']}</h1>
         <p style="color: var(--text-muted); margin-bottom: 24px;">Atnaujinta: {duomenys['last_updated']} • Rasta stotelių: {len(k_stotys)}</p>
         <div style="background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--border-light); overflow-x:auto;">
             <table class="stations-table">
