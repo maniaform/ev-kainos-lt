@@ -7,7 +7,7 @@ TAVILY_URL = "https://" + "api.tavily" + ".com/search"
 
 OPERATORIU_PUSLAPIAI = {
     "Ignitis ON": "https://" + "ignitison" + ".lt",
-    "Eleport": "https://" + "eleport" + ".com/lt/ikrovimo-kainos/",
+    "Eleport": "https://" + "eleport" + ".com/charging/",
     "Elinta Charge": "https://" + "elintacharge" + ".com",
     "Inbalance grid": "https://" + "inbalancegrid" + ".com",
     "Enefit Volt": "https://" + "enefitvolt" + ".lt/ikrovimo-kainos",
