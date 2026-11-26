@@ -21,7 +21,7 @@ OPERATOR_LOGOS = {
 
 OPERATOR_URLS = {
     "Ignitis ON": "https://ignitison.lt",
-    "Eleport": "https://eleport.com",
+    "Eleport": "https://eleport.com/charging/",
     "Elinta Charge": "https://elintacharge.com",
     "Inbalance grid": "https://inbalancegrid.com",
     "Enefit Volt": "https://enefitvolt.lt",
