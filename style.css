@@ -116,7 +116,7 @@ body {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
     border: 1px solid #374151;
     border-radius: 14px;
-    padding: 16px 20px;
+    padding: 14px 18px;
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -124,6 +124,7 @@ body {
     cursor: pointer;
     transition: transform 0.2s, border-color 0.2s;
     box-shadow: var(--shadow-sm);
+    height: fit-content;
 }
 
 .widget-promo-card:hover { transform: translateY(-2px); border-color: var(--accent-green); }
