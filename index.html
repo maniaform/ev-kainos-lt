@@ -173,7 +173,9 @@
 
         function formatEvPrice(val, isFree) {
             if (isFree || val === 0) return '0.00 €/kWh (Nemokama)';
-            return typeof val === 'number' ? `${val.toFixed(2)} €/kWh` : '';
+            return typeof val === 'number' 
+                ? `${val.toFixed(2)} €/kWh` 
+                : `<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Tarifas programėlėje</span>`;
         }
 
         function formatDiff(diff) {
@@ -247,10 +249,14 @@
 
             const filtered = buildFilteredNetworks();
             activeDisplayNetworks = filtered.sort((a, b) => {
-                const pA = typeof a.calc_price === 'number' ? a.calc_price : 99;
-                const pB = typeof b.calc_price === 'number' ? b.calc_price : 99;
-                if (pA !== pB) return pA - pB;
-                return b.max_kw - a.max_kw;
+                const hasPriceA = typeof a.calc_price === 'number';
+                const hasPriceB = typeof b.calc_price === 'number';
+                if (hasPriceA && !hasPriceB) return -1;
+                if (!hasPriceA && hasPriceB) return 1;
+                if (hasPriceA && hasPriceB && a.calc_price !== b.calc_price) {
+                    return a.calc_price - b.calc_price;
+                }
+                return b.filteredStations.length - a.filteredStations.length;
             });
 
             const modeTitle = currentMode === 'dc' ? 'greitojo DC įkrovimo' : (currentMode === 'ac' ? 'lėtesnio AC įkrovimo' : 'nemokamo įkrovimo');
