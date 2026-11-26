@@ -42,19 +42,20 @@ def normalizuoti_jungti(sdr_code):
 def istraukti_kaina_is_teksto(price_str):
     if not price_str:
         return None, False
-    p_low = str(price_str).lower()
-    if "free" in p_low or "nemokam" in p_low or p_low.strip() in ["0", "0.0", "0.00", "0.00 €/kwh", "0,00 €/kwh"]:
+    p_low = str(price_str).lower().strip()
+    if "free" in p_low or "nemokam" in p_low:
         return 0.0, True
     m = re.search(r'(\d+[.,]\d+)', p_low)
     if m:
         try:
             val = float(m.group(1).replace(',', '.'))
-            if 0.0 <= val <= 3.00:
-                return round(val, 2), (val == 0.0)
+            # Skaičius 0.00 be žodžio "nemokama" dažniausiai reiškia tuščią registro lauką, o ne nemokamą įkrovimą
+            if 0.05 <= val <= 3.00:
+                return round(val, 2), False
         except ValueError:
             pass
     return None, False
-
+    
 def surinkti_ev_stoteles():
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
