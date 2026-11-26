@@ -87,13 +87,13 @@ body {
 /* --- APŽVALGOS IR VALDIKLIO JUOSTA --- */
 .top-hero-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1.4fr 1.1fr 1fr;
     gap: 16px;
     margin: 22px 0;
     align-items: stretch;
 }
 
-@media (max-width: 768px) { .top-hero-grid { grid-template-columns: 1fr; } }
+@media (max-width: 960px) { .top-hero-grid { grid-template-columns: 1fr; } }
 
 .summary-bar {
     background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
