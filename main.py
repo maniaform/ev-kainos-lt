@@ -21,7 +21,7 @@ OPERATOR_LOGOS = {
 
 OPERATOR_URLS = {
     "Ignitis ON": "https://ignitison.lt",
-    "Eleport": "https://eleport.com/charging/",
+    "Eleport": "https://eleport.com",
     "Elinta Charge": "https://elintacharge.com",
     "Inbalance grid": "https://inbalancegrid.com",
     "Enefit Volt": "https://enefitvolt.lt",
@@ -62,33 +62,26 @@ def paleisti_ev_atnaujinima():
         di_rezultatas = {}
         tarifai = {}
 
+    tarifai_lower = {k.lower(): v for k, v in tarifai.items()}
     seni_tinklai_map = {n["id"]: n for n in seni_duomenys.get("networks", [])}
     tinklai_dict = {}
 
     for st in stoteles:
         op_name = st["operator"]
         op_id = sukurti_id(op_name)
-        tarifai_lower = {k.lower(): v for k, v in tarifai.items()}
         op_tarifas = tarifai.get(op_name) or tarifai_lower.get(op_name.lower()) or {}
 
-        ocm_kaina = None
-        if st["is_free"]:
-            ocm_kaina = 0.0
-        elif st.get("raw_cost"):
-            m = re.search(r'(\d+[.,]\d+)', str(st["raw_cost"]))
-            if m:
-                try:
-                    val = float(m.group(1).replace(',', '.'))
-                    if 0.05 <= val <= 2.50:
-                        ocm_kaina = round(val, 2)
-                except ValueError:
-                    pass
-
-        dc_kaina = ocm_kaina if ocm_kaina is not None else op_tarifas.get("dc")
-        ac_kaina = ocm_kaina if ocm_kaina is not None else op_tarifas.get("ac")
+        dc_kaina = st.get("dc_price") if st.get("dc_price") is not None else op_tarifas.get("dc")
+        ac_kaina = st.get("ac_price") if st.get("ac_price") is not None else op_tarifas.get("ac")
+        st_kaina = st.get("price") if st.get("price") is not None else (dc_kaina if st["is_dc"] else ac_kaina)
 
         if op_id not in tinklai_dict:
             senas_net = seni_tinklai_map.get(op_id, {})
+            svetaine = st.get("website") or ""
+            if svetaine and not svetaine.startswith("http"):
+                svetaine = "https://" + svetaine
+            numatytoji_url = OPERATOR_URLS.get(op_name) or op_tarifas.get("source_url") or svetaine or "https://vialietuva.lt"
+
             tinklai_dict[op_id] = {
                 "id": op_id,
                 "name": op_name,
@@ -99,14 +92,13 @@ def paleisti_ev_atnaujinima():
                 "diff_ac": 0,
                 "max_power_kw": 0,
                 "price_time": dabar,
-                "source_name": "Open Charge Map / Operatoriai",
-                "source_url": OPERATOR_URLS.get(op_name) or op_tarifas.get("source_url") or "https://openchargemap.org",
+                "source_name": "VIA Lietuva / Operatoriai",
+                "source_url": numatytoji_url,
                 "stations": [],
                 "_old_dc": senas_net.get("best_dc"),
                 "_old_ac": senas_net.get("best_ac")
             }
 
-        st_kaina = dc_kaina if st["is_dc"] else ac_kaina
         tinklai_dict[op_id]["stations"].append({
             "city": st["city"],
             "address": st["address"],
@@ -117,6 +109,7 @@ def paleisti_ev_atnaujinima():
             "dc_price": dc_kaina if st["is_dc"] else None,
             "ac_price": ac_kaina if not st["is_dc"] else None,
             "price": st_kaina,
+            "available_count": st.get("available_count", 0),
             "time": dabar
         })
 
@@ -146,8 +139,8 @@ def paleisti_ev_atnaujinima():
 
     galutinis = {
         "last_updated": dabar,
-        "summary_dc": di_rezultatas.get("summary_dc", seni_duomenys.get("summary_dc", "Greitojo DC įkrovimo stotelių duomenys atnaujinti.")),
-        "summary_ac": di_rezultatas.get("summary_ac", seni_duomenys.get("summary_ac", "Lėtesnio AC įkrovimo stotelių duomenys atnaujinti.")),
+        "summary_dc": di_rezultatas.get("summary_dc", seni_duomenys.get("summary_dc", "Greitojo DC įkrovimo kainos atnaujintos pagal VIA Lietuva duomenis.")),
+        "summary_ac": di_rezultatas.get("summary_ac", seni_duomenys.get("summary_ac", "Lėtesnio AC įkrovimo kainos atnaujintos pagal VIA Lietuva duomenis.")),
         "networks": atnaujinti_tinklai
     }
 
