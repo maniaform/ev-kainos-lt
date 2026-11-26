@@ -19,6 +19,20 @@ OPERATOR_LOGOS = {
     "Virta": "https://google.com"
 }
 
+OPERATOR_URLS = {
+    "Ignitis ON": "https://ignitison.lt",
+    "Eleport": "https://eleport.com",
+    "Elinta Charge": "https://elintacharge.com",
+    "Inbalance grid": "https://inbalancegrid.com",
+    "Enefit Volt": "https://enefitvolt.lt",
+    "Lidl": "https://lidl.lt",
+    "Tesla Supercharger": "https://tesla.com",
+    "Ionity": "https://ionity.eu",
+    "Circle K": "https://circlek.lt",
+    "Neste": "https://neste.lt",
+    "Virta": "https://virta.global"
+}
+
 def sukurti_id(pavadinimas):
     p = pavadinimas.lower().strip()
     lt = {'ą': 'a', 'č': 'c', 'ę': 'e', 'ė': 'e', 'į': 'i', 'š': 's', 'ų': 'u', 'ū': 'u', 'ž': 'z'}
