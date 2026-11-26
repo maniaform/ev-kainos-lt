@@ -37,7 +37,7 @@ def siusti_groq(promptas, max_tokens=2000):
         "messages": [
             {
                 "role": "system",
-                "content": "Esi griežtas faktų tikrintojas. Grąžink TIK gryną JSON objektą. Niekada neišsigalvok ir nespėliok kainų, jei jų nėra tekste."
+                "content": "Esi griežtas faktų tikrintojas ir tikslus Lietuvos elektromobilių rinkos analitikas. Grąžink TIK gryną JSON objektą. Visus tekstus (summary_dc ir summary_ac) rašyk TIK taisyklinga lietuvių kalba! Niekada neišsigalvok ir nespėliok kainų, jei jų nėra tekste."
             },
             {
                 "role": "user",
