@@ -34,6 +34,6 @@ jobs:
         run: |
           git config --local user.email "bot@ev-kainos-lt.vercel.app"
           git config --local user.name "EV Kainos Lietuvoje Robotas"
-          git add ev_prices.json index.html tinklai/ miestai/ keliai/ sitemap.xml robots.txt
+          git add ev_prices.json index.html sitemap.xml robots.txt tinklai/ miestai/ keliai/
           git commit -m "Atnaujintos EV įkrovimo kainos ir SEO puslapiai" || exit 0
           git push
