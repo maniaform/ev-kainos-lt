@@ -1,181 +1,170 @@
 import os
+import re
 import requests
 from bs4 import BeautifulSoup
 
-OCM_URL = "https://" + "api.openchargemap" + ".io/v3/poi"
+VIA_API_URL = "https://" + "ev.vialietuva" + ".lt/api/locations/all"
 TAVILY_URL = "https://" + "api.tavily" + ".com/search"
 
 OPERATORIU_PUSLAPIAI = {
-    "Ignitis ON": "https://" + "ignitison" + ".lt",
-    "Eleport": "https://" + "eleport" + ".com/charging/",
-    "Elinta Charge": "https://" + "elintacharge" + ".com",
-    "Inbalance grid": "https://" + "inbalancegrid" + ".com",
-    "Enefit Volt": "https://" + "enefitvolt" + ".lt/ikrovimo-kainos",
-    "Ionity": "https://" + "ionity" + ".eu/en/network/access-and-payment",
-    "Virta": "https://" + "www.virta" + ".global/lt"
+    "Eleport": "https://" + "eleport" + ".com/charging/"
 }
 
-def isvalyti_miesta(adr_info):
-    town = (adr_info.get("Town") or "").strip()
-    if town:
-        dalys = town.split(",")
-        return dalys[0].strip()
-    state = (adr_info.get("StateOrProvince") or "").strip()
-    if state:
-        return state.replace("apskritis", "").strip()
-    return "Lietuva"
+def normalizuoti_operatoriu(raw_name, stoteles_pav=""):
+    t = f"{raw_name} {stoteles_pav}".lower()
+    if "ignitis" in t: return "Ignitis ON"
+    if "eleport" in t: return "Eleport"
+    if "elinta" in t: return "Elinta Charge"
+    if "in balance" in t or "inbalance" in t: return "Inbalance grid"
+    if "enefit" in t: return "Enefit Volt"
+    if "lidl" in t: return "Lidl"
+    if "tesla" in t: return "Tesla Supercharger"
+    if "ionity" in t: return "Ionity"
+    if "circle k" in t: return "Circle K"
+    if "neste" in t: return "Neste"
+    if "virta" in t: return "Virta"
+    if "stoti" in t: return "Stoti"
+    if "eni" in t or "enel" in t: return "Enel X"
+    # Sutrumpiname UAB, AB ir pan.
+    clean = re.sub(r',?\s*\b(UAB|AB|MB|VšĮ|IĮ)\b\.?', '', raw_name, flags=re.IGNORECASE).strip()
+    return clean if clean else "Kiti operatoriai"
 
-def nustatyti_operatoriu(item):
-    op_info = item.get("OperatorInfo") or {}
-    op_title = (op_info.get("Title") or "").lower()
-    adr = item.get("AddressInfo") or {}
-    visas_tekstas = f"{op_title} {adr.get('Title', '')} {adr.get('AddressLine1', '')} {item.get('GeneralComments', '')}".lower()
+def normalizuoti_jungti(sdr_code):
+    code = (sdr_code or "").upper()
+    if "COMBO" in code or "CCS" in code:
+        return "CCS2"
+    if "CHADEMO" in code:
+        return "CHAdeMO"
+    if "T2" in code or "TYPE_2" in code or "MENNEKES" in code:
+        return "Type 2"
+    return code if code else "Type 2"
 
-    ignitis_raktai = ["ignitis", "eso", "lakd", "via lietuva", "automobilių kelių direkcija"]
-    if any(k in visas_tekstas for k in ignitis_raktai):
-        return "Ignitis ON"
-
-    if "eleport" in visas_tekstas: return "Eleport"
-    if "elinta" in visas_tekstas: return "Elinta Charge"
-    if "inbalance" in visas_tekstas: return "Inbalance grid"
-    if "enefit" in visas_tekstas: return "Enefit Volt"
-    if "lidl" in visas_tekstas: return "Lidl"
-    if "tesla" in visas_tekstas: return "Tesla Supercharger"
-    if "ionity" in visas_tekstas: return "Ionity"
-    if "circle k" in visas_tekstas: return "Circle K"
-    if "neste" in visas_tekstas: return "Neste"
-    if "virta" in visas_tekstas: return "Virta"
-    if op_info.get("Title") and "unknown" not in op_title:
-        return op_info.get("Title").strip()
-    return "Savivaldybių / Kitos stotelės"
+def istraukti_kaina_is_teksto(price_str):
+    if not price_str:
+        return None, False
+    p_low = str(price_str).lower()
+    if "free" in p_low or "nemokam" in p_low or p_low.strip() in ["0", "0.0", "0.00", "0.00 €/kwh", "0,00 €/kwh"]:
+        return 0.0, True
+    m = re.search(r'(\d+[.,]\d+)', p_low)
+    if m:
+        try:
+            val = float(m.group(1).replace(',', '.'))
+            if 0.0 <= val <= 3.00:
+                return round(val, 2), (val == 0.0)
+        except ValueError:
+            pass
+    return None, False
 
 def surinkti_ev_stoteles():
-    ocm_key = (os.environ.get("OCM_API_KEY") or "").strip()
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) EVKainosLT/1.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "application/json"
     }
-    params = {
-        "output": "json",
-        "countrycode": "LT",
-        "maxresults": 1500,
-        "compact": "false",
-        "verbose": "false"
-    }
-    if ocm_key:
-        headers["X-API-Key"] = ocm_key
-        params["key"] = ocm_key
 
-    try:
-        res = requests.get(OCM_URL, params=params, headers=headers, timeout=25)
-        res.raise_for_status()
-        raw_stations = res.json()
-        print(f"Gauta {len(raw_stations)} EV stotelių iš Open Charge Map.")
-    except Exception as e:
-        print("Klaida skaitant Open Charge Map API:", e)
-        raw_stations = []
+    visos_eilutes = []
+    offset = 0
+    limit = 500
 
-    jungtys_map = {33: "CCS2", 25: "Type 2", 2: "CHAdeMO", 1036: "Type 2"}
+    while True:
+        try:
+            res = requests.get(VIA_API_URL, params={"limit": limit, "offset": offset}, headers=headers, timeout=25)
+            res.raise_for_status()
+            data = res.json()
+            rows = data.get("rows") or []
+            if not rows:
+                break
+            visos_eilutes.extend(rows)
+            print(f"Paimta {len(visos_eilutes)} stotelių iš VIA Lietuva API...")
+            if len(rows) < limit:
+                break
+            offset += limit
+        except Exception as e:
+            print(f"Klaida skaitant VIA Lietuva API (offset={offset}):", e)
+            break
+
     stoteles = []
-
-    for item in raw_stations:
-        adr = item.get("AddressInfo") or {}
-        adresas = (adr.get("AddressLine1") or adr.get("Title") or "").strip()
+    for item in visos_eilutes:
+        miestas = (item.get("c") or "Lietuva").strip()
+        adresas = (item.get("adr") or item.get("n") or "").strip()
         if not adresas:
             continue
 
-        miestas = isvalyti_miesta(adr)
-        operatorius = nustatyti_operatoriu(item)
+        op_obj = item.get("o") or item.get("own") or {}
+        raw_op_name = op_obj.get("name") or ""
+        operatorius = normalizuoti_operatoriu(raw_op_name, item.get("n") or "")
 
-        connections = item.get("Connections") or []
-        max_kw = 0
+        evses = item.get("e") or []
+        max_kw = 0.0
         jungciu_tipai = set()
-        for conn in connections:
-            kw = conn.get("PowerKW") or 0
-            if kw > max_kw:
-                max_kw = kw
-            c_type = jungtys_map.get(conn.get("ConnectionTypeID"))
-            if c_type:
-                jungciu_tipai.add(c_type)
+        dc_kainos = []
+        ac_kainos = []
+        yra_nemokama = False
+        laisvu_jungciu = 0
+
+        for evse in evses:
+            if (evse.get("s") or "").upper() == "AVAILABLE":
+                laisvu_jungciu += 1
+            for conn in (evse.get("c") or []):
+                kw = float(conn.get("kw") or 0)
+                if kw > max_kw:
+                    max_kw = kw
+                j_tipas = normalizuoti_jungti(conn.get("sdr"))
+                jungciu_tipai.add(j_tipas)
+
+                kaina_val, is_free = istraukti_kaina_is_teksto(conn.get("price"))
+                if is_free:
+                    yra_nemokama = True
+                if kaina_val is not None:
+                    is_dc_conn = kw >= 40 or j_tipas in ["CCS2", "CHAdeMO"]
+                    if is_dc_conn:
+                        dc_kainos.append(kaina_val)
+                    else:
+                        ac_kainos.append(kaina_val)
 
         if not jungciu_tipai:
             jungciu_tipai.add("Type 2" if max_kw <= 22 else "CCS2")
 
-        usage_cost = str(item.get("UsageCost") or "").lower()
-        nemokama = "free" in usage_cost or "0.00" in usage_cost
+        is_dc_station = max_kw >= 40 or ("CCS2" in jungciu_tipai or "CHAdeMO" in jungciu_tipai)
+        min_dc = min(dc_kainos) if dc_kainos else None
+        min_ac = min(ac_kainos) if ac_kainos else None
+        pagrindine_kaina = min_dc if is_dc_station else min_ac
+        if pagrindine_kaina is None:
+            pagrindine_kaina = min_dc if min_dc is not None else min_ac
 
         stoteles.append({
             "operator": operatorius,
             "city": miestas,
             "address": adresas,
             "connectors": sorted(list(jungciu_tipai)),
-            "power_kw": round(float(max_kw), 1) if max_kw else 22.0,
-            "is_dc": max_kw >= 40 or ("CCS2" in jungciu_tipai or "CHAdeMO" in jungciu_tipai),
-            "is_free": nemokama,
-            "raw_cost": item.get("UsageCost") or ""
+            "power_kw": round(max_kw, 1) if max_kw else 22.0,
+            "is_dc": is_dc_station,
+            "is_free": yra_nemokama or (pagrindine_kaina == 0.0),
+            "dc_price": min_dc,
+            "ac_price": min_ac,
+            "price": pagrindine_kaina,
+            "available_count": laisvu_jungciu,
+            "website": op_obj.get("website") or ""
         })
 
+    print(f"Iš viso apdorota {len(stoteles)} oficialių EV stotelių.")
     return stoteles
 
 def nuskaityti_oficialius_puslapius():
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
     surinktas_tekstas = []
-
     for op_name, url in OPERATORIU_PUSLAPIAI.items():
         try:
             r = requests.get(url, headers=headers, timeout=12)
             if r.ok:
                 soup = BeautifulSoup(r.text, "html.parser")
-                for tag in soup(["script", "style", "nav", "footer", "header"]):
-                    tag.decompose()
-
-                # Speciali taisyklė Eleport: imame tik tikrąjį Lietuvos tarifų bloką (data-id="bb01b44")
                 if op_name == "Eleport":
                     lt_blokas = soup.find(attrs={"data-id": "bb01b44"})
                     if lt_blokas:
                         lt_tekstas = " ".join(lt_blokas.get_text(separator=" ").split())
                         surinktas_tekstas.append(f"=== OFICIALUS PUSLAPIS (LIETUVA): {op_name} ({url}) ===\n{lt_tekstas}")
-                        print("Nuskaitytos oficialios Eleport Lietuvos kainos.")
-                    continue
-
-                tekstas = " ".join(soup.get_text(separator=" ").split())
-                zodziai = tekstas.split(" ")
-                aktualios = []
-                for i, z in enumerate(zodziai):
-                    if any(k in z.lower() for k in ["kwh", "€", "eur", "tarif", "kain"]):
-                        fragmentas = " ".join(zodziai[max(0, i-12):min(len(zodziai), i+15)])
-                        aktualios.append(fragmentas)
-                if aktualios:
-                    unikalios = list(dict.fromkeys(aktualios))[:6]
-                    surinktas_tekstas.append(f"=== OFICIALUS PUSLAPIS: {op_name} ({url}) ===\n" + " | ".join(unikalios))
-                    print(f"Nuskaitytas oficialus {op_name} puslapis.")
-        except Exception as e:
-            print(f"Nepavyko tiesiogiai nuskaityti {op_name}: {e}")
-
+        except Exception:
+            pass
     return "\n".join(surinktas_tekstas)
 
 def gauti_ev_tarifu_konteksta():
-    tiesioginiai_duomenys = nuskaityti_oficialius_puslapius()
-    api_key = (os.environ.get("TAVILY_API_KEY") or "").strip()
-    paieskos_duomenys = []
-
-    if api_key:
-        queries = [
-            "Ignitis ON įkrovimo kaina kWh DC AC tarifai",
-            "Eleport Elinta Charge Inbalance grid įkrovimo kaina kWh",
-            "Enefit Volt Lidl Ionity Tesla įkrovimo kaina kWh Lietuva"
-        ]
-        for q in queries:
-            try:
-                r = requests.post(
-                    TAVILY_URL,
-                    json={"api_key": api_key, "query": q, "search_depth": "basic", "max_results": 2},
-                    timeout=15
-                )
-                if r.ok:
-                    for item in r.json().get("results", []):
-                        paieskos_duomenys.append(f"[{item.get('title')} ({item.get('url')})]: {item.get('content')}")
-            except Exception:
-                pass
-
-    return tiesioginiai_duomenys + "\n\n" + "\n".join(paieskos_duomenys)
+    return nuskaityti_oficialius_puslapius()
