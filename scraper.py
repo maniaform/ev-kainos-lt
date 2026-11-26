@@ -150,6 +150,24 @@ def surinkti_ev_stoteles():
             "website": op_obj.get("website") or ""
         })
 
+    unikalios_stoteles = {}
+    for st in stoteles:
+        raktas = f"{st['operator'].lower()}|{st['city'].lower()}|{st['address'].lower()}"
+        if raktas not in unikalios_stoteles:
+            unikalios_stoteles[raktas] = st
+        else:
+            esama = unikalios_stoteles[raktas]
+            if st["power_kw"] > esama["power_kw"]:
+                esama["power_kw"] = st["power_kw"]
+            esama["connectors"] = sorted(list(set(esama["connectors"] + st["connectors"])))
+            if isinstance(st["price"], (int, float)):
+                if esama["price"] is None or st["price"] < esama["price"]:
+                    esama["price"] = st["price"]
+
+    stoteles = list(unikalios_stoteles.values())
+    print(f"Iš viso apdorota {len(stoteles)} unikalių EV stotelių.")
+    return stoteles
+    
     print(f"Iš viso apdorota {len(stoteles)} oficialių EV stotelių.")
     return stoteles
 
