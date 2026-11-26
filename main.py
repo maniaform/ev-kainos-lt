@@ -54,7 +54,8 @@ def paleisti_ev_atnaujinima():
     for st in stoteles:
         op_name = st["operator"]
         op_id = sukurti_id(op_name)
-        op_tarifas = tarifai.get(op_name) or {}
+        tarifai_lower = {k.lower(): v for k, v in tarifai.items()}
+        op_tarifas = tarifai.get(op_name) or tarifai_lower.get(op_name.lower()) or {}
 
         ocm_kaina = None
         if st["is_free"]:
